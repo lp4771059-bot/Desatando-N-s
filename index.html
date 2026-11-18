@@ -1,0 +1,648 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Desatando Nós, Construindo Caminhos</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: banner acadêmico vertical em colunas (ABNT): cabeçalho institucional, seções numeradas 1–5, referências sem numeração. Um fio que se desata percorre o cabeçalho. */
+:root{
+  --bg:#f5f0f3; --surface:#ffffff; --surface-2:#efe7ee; --fg:#271830; --muted:#625268;
+  --line:#ddd0e0; --brand:#46204f; --brand-fg:#ffffff; --brand-soft:#e9d9ee; --link:#6a2b7d;
+  --accent:#b8481a; --accent-soft:#fbe6da; --thread:#f0a878; --focus:#b8481a;
+  --font:Arial,Helvetica,sans-serif; --scale:1;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#150e19; --surface:#21152a; --surface-2:#2b1d36; --fg:#f2eaf5; --muted:#bba9c4;
+    --line:#40304c; --brand:#2d1536; --brand-fg:#ffffff; --brand-soft:#3a2547; --link:#d9aee8;
+    --accent:#f0925f; --accent-soft:#3a2418; --thread:#f0925f; --focus:#f0925f; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#150e19; --surface:#21152a; --surface-2:#2b1d36; --fg:#f2eaf5; --muted:#bba9c4;
+  --line:#40304c; --brand:#2d1536; --brand-fg:#ffffff; --brand-soft:#3a2547; --link:#d9aee8;
+  --accent:#f0925f; --accent-soft:#3a2418; --thread:#f0925f; --focus:#f0925f; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:calc(64px + env(safe-area-inset-top,0px))}
+body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:calc(16px*var(--scale));line-height:1.5;margin:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--surface)}
+.wrap{max-width:1200px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:var(--link)}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:3px}
+button{font:inherit;color:inherit}
+
+/* barra de ferramentas */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+.bar .wrap{display:flex;align-items:center;gap:12px;min-height:52px}
+.nav{display:flex;gap:2px;overflow-x:auto;flex:1;min-width:0;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav a{white-space:nowrap;text-decoration:none;color:var(--muted);font-size:.8125em;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:8px 10px;border-radius:4px}
+.nav a:hover{color:var(--fg);background:var(--surface-2)}
+.nav a.on{color:var(--brand-fg);background:var(--brand)}
+.tools{display:flex;gap:6px;flex-shrink:0}
+.tools button{border:1px solid var(--line);background:var(--surface);border-radius:6px;min-width:38px;height:36px;padding:0 10px;cursor:pointer;font-size:.8125em;font-weight:700}
+.tools button:hover{background:var(--surface-2)}
+.tools button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.progress{position:absolute;left:0;bottom:-1px;height:3px;width:100%;background:var(--accent);transform:scaleX(0);transform-origin:0 50%;will-change:transform}
+
+/* cabeçalho */
+.hero{background:var(--brand);color:var(--brand-fg);padding-block:36px 0;overflow:hidden}
+.inst{display:flex;gap:16px;align-items:center}
+.psi{font-size:3.2em;line-height:1;font-weight:700;color:var(--thread);width:1.1em;text-align:center;flex-shrink:0}
+.inst p{margin:0}
+.inst-name{font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:.95em}
+.inst-course{font-size:.9em;letter-spacing:.05em;text-transform:uppercase;opacity:.9}
+.inst-sub{font-size:.85em;opacity:.8}
+.hero h1{margin:28px 0 8px;font-size:clamp(1.7rem,4.6vw,3.1rem);line-height:1.12;text-transform:uppercase;letter-spacing:.01em;text-wrap:balance;max-width:20em}
+.subtitle{margin:0;font-size:clamp(1.05rem,2.4vw,1.5rem);line-height:1.3;max-width:30em;opacity:.95}
+.credits{display:flex;flex-wrap:wrap;gap:6px 32px;margin-top:22px;font-size:.9em}
+.credits p{margin:0}
+.credits b{font-weight:700}
+.thread{display:block;width:100%;height:64px;margin-top:14px}
+.thread path{fill:none;stroke:var(--thread);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.thread circle{fill:var(--thread)}
+
+/* aviso de edição */
+.edit-note{display:none;background:var(--accent-soft);border:1px solid var(--accent);color:var(--fg);border-radius:6px;padding:10px 14px;margin-top:20px;font-size:.9em}
+body.editing .edit-note{display:block}
+body.editing [data-edit]{outline:2px dashed var(--accent);outline-offset:3px;border-radius:2px;cursor:text}
+
+/* grade */
+main{padding-block:28px 40px}
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:20px}
+.c12{grid-column:span 12}.c7{grid-column:span 7}.c5{grid-column:span 5}
+.stack{display:flex;flex-direction:column;gap:20px;min-width:0}
+.sec{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:22px 24px;min-width:0}
+.sec h2{margin:0 0 14px;font-size:1.0625em;font-weight:700;letter-spacing:.06em;text-transform:uppercase;display:flex;gap:.55em;align-items:baseline}
+.sec h2 .n{color:var(--accent)}
+.sec h3{margin:0 0 6px;font-size:.8125em;letter-spacing:.07em;text-transform:uppercase;color:var(--accent)}
+.sec p{margin:0 0 .8em}
+.sec p:last-child{margin-bottom:0}
+.txt{hyphens:auto}
+.cite{white-space:nowrap}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding:0;list-style:none}
+.tags li{background:var(--brand-soft);color:var(--fg);border-radius:999px;padding:4px 12px;font-size:.8125em;font-weight:700}
+.goal{border-color:var(--accent);background:var(--accent-soft)}
+
+/* resultados */
+.rgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.rc{border:1px solid var(--line);border-radius:6px;padding:16px;background:var(--surface-2);min-width:0}
+.rc.wide{grid-column:span 2}
+.rc p{font-size:.95em}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 12px}
+.chip{border:1px solid var(--brand);background:var(--surface);border-radius:999px;padding:6px 14px;cursor:pointer;font-size:.875em;font-weight:700;color:var(--fg)}
+.chip:hover{background:var(--brand-soft)}
+.chip[aria-pressed="true"]{background:var(--brand);color:var(--brand-fg)}
+.def{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:12px 14px;font-size:.9em;min-height:5.2em}
+.def b{display:block;margin-bottom:2px}
+.def small{display:block;color:var(--muted);margin-top:6px}
+
+/* figuras (NBR 14724: título acima, fonte abaixo) */
+.figs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-top:22px}
+.fig{margin:0;min-width:0}
+.fig figcaption{font-size:.875em;margin-bottom:8px}
+.slot{position:relative;display:flex;align-items:center;justify-content:center;aspect-ratio:4/3;max-width:100%;border:2px dashed var(--line);border-radius:6px;background:var(--surface-2);overflow:hidden;cursor:pointer;text-align:center;color:var(--muted);font-size:.9em;padding:12px}
+.slot:hover{border-color:var(--accent)}
+.slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.slot input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.slot .ph b{display:block;color:var(--fg);font-size:1.05em}
+.fig .src{font-size:.8125em;margin:8px 0 0}
+.rm{display:none;margin-top:6px;border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:4px 10px;font-size:.8125em;cursor:pointer}
+body.editing .fig.has .rm{display:inline-block}
+
+/* canal de denúncia */
+.help{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:16px;background:var(--brand);color:var(--brand-fg);border-radius:8px;padding:16px 18px}
+.help .num{font-size:2.8em;font-weight:700;line-height:1;color:var(--thread)}
+.help p{margin:0;font-size:.9em;flex:1;min-width:12em}
+.help button{border:1px solid var(--brand-fg);background:transparent;color:var(--brand-fg);border-radius:6px;padding:8px 14px;cursor:pointer;font-weight:700;font-size:.8125em}
+.help button:hover{background:rgba(255,255,255,.14)}
+
+/* referências (NBR 6023: alinhadas à esquerda, espaço simples) */
+.refs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;font-size:.9em;line-height:1.25;text-align:left}
+.refs li{display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+.refs span{min-width:0;overflow-wrap:anywhere}
+.cp{flex-shrink:0;border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:3px 9px;font-size:.75em;cursor:pointer;font-weight:700}
+.cp:hover{background:var(--surface-2)}
+
+footer{background:var(--brand);color:var(--brand-fg);padding-block:18px;font-size:.8125em;text-align:center;letter-spacing:.03em}
+footer p{margin:0}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:8px 16px;border-radius:6px;font-size:.875em;opacity:0;pointer-events:none;transition:opacity .2s;z-index:40}
+.toast.show{opacity:1}
+
+/* QR code */
+.hero-top{display:flex;gap:24px;justify-content:space-between;align-items:flex-start}
+.qrcard{display:none;flex-shrink:0;background:#fff;color:#1b1020;border:0;border-radius:10px;padding:10px;width:150px;text-align:center;cursor:pointer;font-size:.72rem;line-height:1.25;font-weight:700}
+.qrcard:hover{box-shadow:0 0 0 3px var(--thread)}
+.qr{display:block;width:130px;height:130px;margin:0 auto 6px}
+.qr img,.qr canvas{width:100%;height:100%}
+.qr img{display:block;image-rendering:pixelated}
+@media (min-width:760px){.qrcard{display:block}}
+.modal{position:fixed;inset:0;z-index:50;background:rgba(15,8,20,.88);display:flex;align-items:center;justify-content:center;padding-block:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.mbox{background:#fff;color:#1b1020;border-radius:14px;padding:22px;width:min(100%,440px);text-align:center;display:flex;flex-direction:column;gap:10px;align-items:center}
+.mbox h2{margin:0;font-size:1.15rem}
+.mbox p{margin:0;font-size:.9rem}
+.mbox .qr{width:min(64vw,340px);height:min(64vw,340px);margin:4px auto}
+.mbox .url{font-size:.78rem;overflow-wrap:anywhere;color:#5a4a62;user-select:all}
+.mact{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.mact button{border:2px solid #46204f;background:#fff;color:#46204f;border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer}
+.mact button:last-child{background:#46204f;color:#fff}
+#confetti{display:none;position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:45}
+
+/* nós para desatar */
+.sub{margin:26px 0 10px;font-size:.8125em;letter-spacing:.07em;text-transform:uppercase;color:var(--accent);font-weight:700;display:flex;justify-content:space-between;gap:4px 12px;flex-wrap:wrap}
+.sub .cnt{color:var(--muted);letter-spacing:.02em;text-transform:none;font-weight:400}
+.knots{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.knot{border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:14px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:8px;min-width:0;color:var(--fg)}
+.knot:hover{border-color:var(--accent)}
+.knot svg{width:100%;height:44px;display:block}
+.knot path{fill:none;stroke:var(--accent);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;transition:opacity .35s}
+.knot .k-line{opacity:0;stroke:var(--link)}
+.knot[aria-pressed="true"]{background:var(--brand-soft);border-color:var(--brand)}
+.knot[aria-pressed="true"] .k-tangle{opacity:0}
+.knot[aria-pressed="true"] .k-line{opacity:1}
+.knot .t{font-weight:700;font-size:.9em}
+.knot .a{font-size:.85em;color:var(--muted)}
+.knot[aria-pressed="true"] .a{color:var(--fg)}
+.kwin{margin-top:12px;border:1px solid var(--accent);background:var(--accent-soft);border-radius:8px;padding:12px 14px;font-weight:700}
+
+/* mito ou verdade */
+.quiz{display:grid;gap:14px;max-width:46em}
+.qmeta{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:.875em;gap:12px;flex-wrap:wrap}
+.qdots{display:flex;gap:6px}
+.qdots i{width:11px;height:11px;border-radius:50%;background:var(--line);display:block}
+.qdots i.ok{background:var(--link)}
+.qdots i.no{background:var(--accent)}
+.qdots i.cur{outline:2px solid var(--fg);outline-offset:2px}
+.qs{font-size:1.2em;font-weight:700;line-height:1.35;margin:0}
+.qa{display:flex;gap:10px;flex-wrap:wrap}
+.qa button{flex:1;min-width:9em;padding:12px 16px;border-radius:8px;border:2px solid var(--brand);background:var(--surface);color:var(--fg);cursor:pointer;font-weight:700;font-size:1em}
+.qa button:hover:not(:disabled){background:var(--brand-soft)}
+.qa button.right{background:var(--brand);color:var(--brand-fg)}
+.qa button.wrong{border-color:var(--accent);background:var(--accent-soft)}
+.qa button:disabled{cursor:default}
+.qfb{border:1px solid var(--line);border-radius:8px;padding:12px 14px;background:var(--surface-2);font-size:.95em}
+.qfb b{display:block;margin-bottom:2px}
+.qbtn{align-self:flex-start;border:0;background:var(--accent);color:#fff;border-radius:8px;padding:10px 18px;font-weight:700;cursor:pointer}
+.qbtn:hover{filter:brightness(1.08)}
+.score{font-size:2.2em;font-weight:700;color:var(--accent);line-height:1}
+
+@media (min-width:700px){.txt{text-align:justify}}
+@media (max-width:900px){.knots{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:480px){.knots{grid-template-columns:minmax(0,1fr)}}
+@media (prefers-reduced-motion:reduce){.knot path{transition:none}}
+@media (max-width:900px){
+  .c7,.c5{grid-column:span 12}
+  .rgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .rc.wide{grid-column:span 2}
+}
+@media (max-width:600px){
+  .rgrid{grid-template-columns:minmax(0,1fr)}
+  .rc.wide{grid-column:auto}
+  .figs{grid-template-columns:minmax(0,1fr)}
+  .sec{padding:18px 16px}
+  .tools button.opt{display:none}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.toast{transition:none}}
+</style>
+
+<div class="bar" role="banner">
+  <div class="wrap">
+    <nav class="nav" id="nav" aria-label="Seções do banner">
+      <a href="#introducao">Introdução</a>
+      <a href="#objetivo">Objetivo</a>
+      <a href="#metodologia">Metodologia</a>
+      <a href="#resultados">Resultados</a>
+      <a href="#jogo">Mito ou verdade</a>
+      <a href="#consideracoes">Considerações</a>
+      <a href="#referencias">Referências</a>
+    </nav>
+    <div class="tools">
+      <button type="button" id="aMenos" class="opt" aria-label="Diminuir o tamanho do texto">A−</button>
+      <button type="button" id="aMais" class="opt" aria-label="Aumentar o tamanho do texto">A+</button>
+      <button type="button" id="qrBtn" aria-label="Mostrar QR code para acessar o banner">QR</button>
+      <button type="button" id="tema" aria-label="Alternar tema claro e escuro">Tema</button>
+      <button type="button" id="editar" aria-pressed="false" hidden>Editar</button>
+    </div>
+  </div>
+  <div class="progress" id="prog"></div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="hero-top">
+    <div class="inst">
+      <span class="psi" aria-hidden="true">Ψ</span>
+      <div>
+        <p class="inst-name">Faculdade Regional de Riachão do Jacuípe</p>
+        <p class="inst-course">Bacharelado em Psicologia</p>
+        <p class="inst-sub">Estudantes do IV semestre do curso de Psicologia</p>
+      </div>
+    </div>
+    <button type="button" class="qrcard" id="qrCard" aria-label="Ampliar o QR code de acesso ao banner"><span class="qr" id="qrSmall"></span>Aponte a câmera e acesse este banner</button>
+    </div>
+    <h1>Desatando nós, construindo caminhos:</h1>
+    <p class="subtitle">Proteção, direitos e promoção da segurança da mulher</p>
+    <div class="credits">
+      <p><b>Autores:</b> <span id="autores">Estudantes do IV semestre do curso de Psicologia</span></p>
+      <p><b>Orientadora:</b> Profª. Jisele Carneiro</p>
+    </div>
+    <div class="edit-note" role="status">Modo de edição ativo. Clique nos campos tracejados para digitar e nos quadros de figuras para enviar fotos. Suas alterações ficam salvas neste navegador.</div>
+    <svg class="thread" viewBox="0 0 1200 64" preserveAspectRatio="xMinYMid slice" aria-hidden="true" focusable="false">
+      <path d="M0 40 C 34 40 52 12 84 14 C 120 16 118 58 86 56 C 54 54 62 10 112 12 C 160 14 170 40 230 40 L 1160 40"/>
+      <circle cx="1170" cy="40" r="6"/>
+    </svg>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="grid">
+
+    <section class="sec c7" id="introducao" aria-labelledby="h-intro">
+      <h2 id="h-intro"><span class="n">1</span> Introdução</h2>
+      <p class="txt">A violência contra a mulher constitui uma das mais persistentes expressões das desigualdades sociais e de gênero presentes na sociedade brasileira, associada a relações históricas de poder, discriminação e desigualdade que atravessam as esferas familiar, social, econômica e institucional. Segundo Beauvoir (2009), o lugar ocupado pelas mulheres na sociedade não é definido apenas pela biologia, mas também pelas relações sociais e culturais. Diante desse cenário, é essencial ampliar o acesso à informação e às políticas de proteção social voltadas ao público feminino, em consonância com a Lei Maria da Penha (BRASIL, 2006).</p>
+    </section>
+
+    <div class="stack c5">
+      <section class="sec goal" id="objetivo" aria-labelledby="h-obj">
+        <h2 id="h-obj"><span class="n">2</span> Objetivo</h2>
+        <p class="txt">O objetivo deste projeto é desenvolver ações voltadas à informação, à sensibilização e à orientação sobre a proteção social, a garantia de direitos e a segurança feminina.</p>
+      </section>
+      <section class="sec" id="metodologia" aria-labelledby="h-met">
+        <h2 id="h-met"><span class="n">3</span> Metodologia</h2>
+        <p class="txt">Participou do projeto o público da Educação de Pessoas Jovens, Adultos e Idosos (EPJAI) de Capim Grosso – BA. Foram realizadas ações educativas, rodas de conversa e distribuição de materiais informativos sobre os direitos da mulher, os canais de denúncia (Central de Atendimento à Mulher – Ligue 180) e a rede de apoio.</p>
+        <ul class="tags" aria-label="Ações realizadas">
+          <li>Ações educativas</li><li>Rodas de conversa</li><li>Materiais informativos</li>
+        </ul>
+      </section>
+    </div>
+
+    <section class="sec c12" id="resultados" aria-labelledby="h-res">
+      <h2 id="h-res"><span class="n">4</span> Resultados e discussão</h2>
+      <div class="rgrid">
+        <div class="rc">
+          <h3>Desafio identificado</h3>
+          <p>Desconhecimento dos direitos das mulheres, das diferentes formas de violência e dos mecanismos legais e institucionais disponíveis para acolhimento, orientação e proteção.</p>
+        </div>
+        <div class="rc">
+          <h3>Obstáculos</h3>
+          <p>Naturalização da violência, receio de represálias, dependência econômica e pouca divulgação dos canais de denúncia.</p>
+        </div>
+        <div class="rc">
+          <h3>Ações desenvolvidas</h3>
+          <p>Rodas de conversa, ações educativas e distribuição de materiais informativos sobre direitos, Ligue 180 e rede de apoio.</p>
+        </div>
+        <div class="rc wide">
+          <h3>Formas de violência abordadas</h3>
+          <p>Violência física, psicológica, sexual, patrimonial e moral, conforme a Lei nº 11.340/2006 (BRASIL, 2006). Toque em uma forma para ver a definição.</p>
+          <div class="chips" role="group" aria-label="Formas de violência">
+            <button type="button" class="chip" data-k="fisica" aria-pressed="true">Física</button>
+            <button type="button" class="chip" data-k="psicologica" aria-pressed="false">Psicológica</button>
+            <button type="button" class="chip" data-k="sexual" aria-pressed="false">Sexual</button>
+            <button type="button" class="chip" data-k="patrimonial" aria-pressed="false">Patrimonial</button>
+            <button type="button" class="chip" data-k="moral" aria-pressed="false">Moral</button>
+          </div>
+          <div class="def" id="def" aria-live="polite"></div>
+        </div>
+        <div class="rc">
+          <h3>Contribuição social</h3>
+          <p>Fortalecimento da informação e da rede de apoio como estratégias de prevenção e de promoção da segurança da mulher.</p>
+        </div>
+      </div>
+
+      <div class="sub"><span>Desatando os nós</span><span class="cnt" id="kcnt" aria-live="polite">0 de 4 nós desatados. Toque em cada obstáculo.</span></div>
+      <div class="knots">
+        <button type="button" class="knot" aria-pressed="false" data-caminho="Rodas de conversa que dão nome às formas de violência e mostram que nenhuma delas é normal.">
+          <svg viewBox="0 0 120 44" aria-hidden="true" focusable="false"><path class="k-tangle" d="M4 22 C 24 22 28 6 44 8 C 62 10 58 40 40 36 C 24 32 40 6 62 10 C 82 14 84 22 116 22"/><path class="k-line" d="M4 22 L116 22"/></svg>
+          <span class="t">Naturalização da violência</span><span class="a">Toque para desatar</span>
+        </button>
+        <button type="button" class="knot" aria-pressed="false" data-caminho="Conhecer a rede de apoio e o Ligue 180, canal gratuito e sigiloso.">
+          <svg viewBox="0 0 120 44" aria-hidden="true" focusable="false"><path class="k-tangle" d="M4 22 C 24 22 28 6 44 8 C 62 10 58 40 40 36 C 24 32 40 6 62 10 C 82 14 84 22 116 22"/><path class="k-line" d="M4 22 L116 22"/></svg>
+          <span class="t">Receio de represálias</span><span class="a">Toque para desatar</span>
+        </button>
+        <button type="button" class="knot" aria-pressed="false" data-caminho="Informação sobre direitos, inclusive sobre a violência patrimonial, e sobre a rede de proteção social.">
+          <svg viewBox="0 0 120 44" aria-hidden="true" focusable="false"><path class="k-tangle" d="M4 22 C 24 22 28 6 44 8 C 62 10 58 40 40 36 C 24 32 40 6 62 10 C 82 14 84 22 116 22"/><path class="k-line" d="M4 22 L116 22"/></svg>
+          <span class="t">Dependência econômica</span><span class="a">Toque para desatar</span>
+        </button>
+        <button type="button" class="knot" aria-pressed="false" data-caminho="Distribuição de materiais informativos sobre o Ligue 180 e a rede de apoio.">
+          <svg viewBox="0 0 120 44" aria-hidden="true" focusable="false"><path class="k-tangle" d="M4 22 C 24 22 28 6 44 8 C 62 10 58 40 40 36 C 24 32 40 6 62 10 C 82 14 84 22 116 22"/><path class="k-line" d="M4 22 L116 22"/></svg>
+          <span class="t">Pouca divulgação dos canais de denúncia</span><span class="a">Toque para desatar</span>
+        </button>
+      </div>
+      <div class="kwin" id="kwin" hidden>Os quatro nós foram desatados. Informação e rede de apoio abrem caminhos.</div>
+
+      <div class="figs" hidden>
+        <figure class="fig" id="fig1">
+          <figcaption>Figura 1 – <span data-edit id="cap1">[descrever a atividade realizada]</span></figcaption>
+          <label class="slot" for="up1">
+            <span class="ph"><b>Adicionar foto</b>Clique para escolher uma imagem</span>
+            <input type="file" id="up1" accept="image/*" aria-label="Enviar imagem da Figura 1">
+          </label>
+          <p class="src">Fonte: Autores (2026).</p>
+          <button type="button" class="rm">Remover imagem</button>
+        </figure>
+        <figure class="fig" id="fig2">
+          <figcaption>Figura 2 – <span data-edit id="cap2">[descrever a atividade realizada]</span></figcaption>
+          <label class="slot" for="up2">
+            <span class="ph"><b>Adicionar foto</b>Clique para escolher uma imagem</span>
+            <input type="file" id="up2" accept="image/*" aria-label="Enviar imagem da Figura 2">
+          </label>
+          <p class="src">Fonte: Autores (2026).</p>
+          <button type="button" class="rm">Remover imagem</button>
+        </figure>
+      </div>
+    </section>
+
+    <section class="sec c12" id="jogo" aria-labelledby="h-jogo">
+      <h2 id="h-jogo">Mito ou verdade?</h2>
+      <p>Atividade interativa: teste o que você aprendeu neste banner.</p>
+      <div class="quiz" id="quiz"></div>
+    </section>
+
+    <section class="sec c7" id="consideracoes" aria-labelledby="h-con">
+      <h2 id="h-con"><span class="n">5</span> Considerações finais</h2>
+      <p class="txt">As ações desenvolvidas evidenciam a importância de levar informação qualificada ao público da EPJAI sobre os direitos das mulheres e os mecanismos de proteção. A sensibilização e a divulgação dos canais de denúncia, como o Ligue 180, contribuem para o enfrentamento da violência e para o fortalecimento da rede de apoio. Conclui-se que a extensão universitária, ao articular ensino e comunidade, é uma estratégia relevante para a promoção da segurança e da autonomia feminina.</p>
+      <div class="help">
+        <span class="num">180</span>
+        <p><b>Central de Atendimento à Mulher.</b> Ligação gratuita e sigilosa. Em risco imediato, ligue 190.</p>
+        <button type="button" id="cp180">Copiar 180</button>
+      </div>
+    </section>
+
+    <section class="sec c5" id="referencias" aria-labelledby="h-ref">
+      <h2 id="h-ref">Referências</h2>
+      <ul class="refs">
+        <li><span id="ref1">BEAUVOIR, Simone de. <b>O segundo sexo</b>. 2. ed. Rio de Janeiro: Nova Fronteira, 2009.</span><button type="button" class="cp" data-t="ref1" aria-label="Copiar referência de Beauvoir">Copiar</button></li>
+        <li><span id="ref2">BRASIL. Lei nº 11.340, de 7 de agosto de 2006. Cria mecanismos para coibir a violência doméstica e familiar contra a mulher. <b>Diário Oficial da União</b>: seção 1, Brasília, DF, 8 ago. 2006.</span><button type="button" class="cp" data-t="ref2" aria-label="Copiar referência da Lei nº 11.340">Copiar</button></li>
+      </ul>
+    </section>
+
+  </div>
+</main>
+
+<footer>
+  <div class="wrap"><p>Projeto de Extensão&nbsp; | &nbsp;Faculdade Regional de Riachão do Jacuípe&nbsp; | &nbsp;Bacharelado em Psicologia&nbsp; | &nbsp;2026</p></div>
+</footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<canvas id="confetti" aria-hidden="true"></canvas>
+<div class="modal" id="qrModal" role="dialog" aria-modal="true" aria-labelledby="qrTitle" hidden>
+  <div class="mbox">
+    <h2 id="qrTitle">Acesse o banner pelo celular</h2>
+    <span class="qr" id="qrBig"></span>
+    <p>Aponte a câmera do celular para o código.</p>
+    <p class="url" id="qrUrl">https://claude.ai/artifact/DrNCgchjFQHq51EgLGtyy4</p>
+    <div class="mact"><button type="button" id="qrCopy">Copiar link</button><button type="button" id="qrClose">Fechar</button></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+(function(){
+  var $=function(s){return document.querySelector(s)}, $$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s))};
+  var store={
+    get:function(k){try{return localStorage.getItem('dnc:'+k)}catch(e){return null}},
+    set:function(k,v){try{localStorage.setItem('dnc:'+k,v);return true}catch(e){return false}},
+    del:function(k){try{localStorage.removeItem('dnc:'+k)}catch(e){}}
+  };
+  var toastEl=$('#toast'), tt;
+  function toast(m){toastEl.textContent=m;toastEl.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){toastEl.classList.remove('show')},1800)}
+
+  /* formas de violência (síntese do art. 7º da Lei nº 11.340/2006) */
+  var defs={
+    fisica:['Violência física','Qualquer conduta que ofenda a integridade ou a saúde corporal da mulher.'],
+    psicologica:['Violência psicológica','Conduta que cause dano emocional, reduza a autoestima ou controle as ações e decisões da mulher, por meio de ameaça, humilhação, manipulação, isolamento, vigilância constante ou perseguição.'],
+    sexual:['Violência sexual','Conduta que force a mulher a presenciar, manter ou participar de relação sexual não desejada, por intimidação, ameaça, coação ou uso da força, ou que limite seus direitos sexuais e reprodutivos.'],
+    patrimonial:['Violência patrimonial','Conduta que envolva retenção, subtração ou destruição de objetos, documentos pessoais, bens, valores ou recursos econômicos da mulher.'],
+    moral:['Violência moral','Conduta que configure calúnia, difamação ou injúria contra a mulher.']
+  };
+  function showDef(k){
+    var d=defs[k], el=$('#def');
+    el.innerHTML='';
+    var b=document.createElement('b'); b.textContent=d[0];
+    var p=document.createElement('span'); p.textContent=d[1];
+    var s=document.createElement('small'); s.textContent='Síntese do art. 7º da Lei nº 11.340/2006 (BRASIL, 2006).';
+    el.appendChild(b);el.appendChild(p);el.appendChild(s);
+    $$('.chip').forEach(function(c){c.setAttribute('aria-pressed',c.dataset.k===k?'true':'false')});
+  }
+  $$('.chip').forEach(function(c){c.addEventListener('click',function(){showDef(c.dataset.k)})});
+  showDef('fisica');
+
+  /* copiar */
+  function copyText(t,msg){
+    var done=function(){toast(msg)};
+    var fallback=function(){
+      var ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';
+      document.body.appendChild(ta);ta.select();
+      try{document.execCommand('copy');done()}catch(e){toast('Selecione e copie manualmente')}
+      document.body.removeChild(ta);
+    };
+    try{navigator.clipboard.writeText(t).then(done,fallback)}catch(e){fallback()}
+  }
+  $('#cp180').addEventListener('click',function(){copyText('180','Número 180 copiado')});
+  $$('.cp').forEach(function(b){b.addEventListener('click',function(){copyText($('#'+b.dataset.t).textContent.trim(),'Referência copiada')})});
+
+  /* tamanho do texto */
+  var scale=1;
+  var sv=parseFloat(store.get('scale')); if(sv>=0.85&&sv<=1.4) scale=sv;
+  function applyScale(){document.documentElement.style.setProperty('--scale',scale)}
+  applyScale();
+  $('#aMais').addEventListener('click',function(){scale=Math.min(1.4,Math.round((scale+0.1)*10)/10);applyScale();store.set('scale',scale)});
+  $('#aMenos').addEventListener('click',function(){scale=Math.max(0.85,Math.round((scale-0.1)*10)/10);applyScale();store.set('scale',scale)});
+
+  /* tema */
+  $('#tema').addEventListener('click',function(){
+    var root=document.documentElement, cur=root.getAttribute('data-theme');
+    if(!cur) cur=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+    root.setAttribute('data-theme',cur==='dark'?'light':'dark');
+  });
+
+  /* edição de textos */
+  $$('[data-edit]').forEach(function(el){
+    var v=store.get('t:'+el.id); if(v) el.textContent=v;
+    el.addEventListener('input',function(){store.set('t:'+el.id,el.textContent)});
+    el.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault()}});
+  });
+  var edBtn=$('#editar'), editing=false;
+  edBtn.addEventListener('click',function(){
+    editing=!editing;
+    document.body.classList.toggle('editing',editing);
+    edBtn.setAttribute('aria-pressed',editing?'true':'false');
+    edBtn.textContent=editing?'Concluir':'Editar';
+    $$('[data-edit]').forEach(function(el){
+      if(editing){el.setAttribute('contenteditable','true');el.setAttribute('role','textbox')}
+      else{el.removeAttribute('contenteditable');el.removeAttribute('role')}
+    });
+    if(editing){var f=$('#autores');if(f)f.focus()}
+  });
+
+  /* figuras */
+  function setImg(fig,src){
+    var slot=fig.querySelector('.slot'), old=slot.querySelector('img'); if(old) old.remove();
+    var ph=slot.querySelector('.ph');
+    if(src){
+      var im=document.createElement('img'); im.src=src; im.alt='Registro fotográfico da atividade realizada';
+      slot.appendChild(im); ph.hidden=true; fig.classList.add('has');
+    } else { ph.hidden=false; fig.classList.remove('has'); }
+  }
+  ['fig1','fig2'].forEach(function(id){
+    var fig=document.getElementById(id), input=fig.querySelector('input');
+    var saved=store.get('img:'+id); if(saved) setImg(fig,saved);
+    input.addEventListener('change',function(){
+      var f=input.files&&input.files[0]; if(!f) return;
+      var rd=new FileReader();
+      rd.onload=function(){
+        var img=new Image();
+        img.onload=function(){
+          var max=1400, r=Math.min(1,max/Math.max(img.width,img.height));
+          var c=document.createElement('canvas'); c.width=Math.round(img.width*r); c.height=Math.round(img.height*r);
+          c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+          var url=c.toDataURL('image/jpeg',0.82);
+          setImg(fig,url);
+          if(!store.set('img:'+id,url)) toast('Imagem exibida, mas não coube na memória do navegador');
+        };
+        img.src=rd.result;
+      };
+      rd.readAsDataURL(f);
+    });
+    fig.querySelector('.rm').addEventListener('click',function(){store.del('img:'+id);input.value='';setImg(fig,null)});
+  });
+
+  /* navegação e progresso */
+  var links=$$('#nav a'), ids=links.map(function(a){return a.getAttribute('href').slice(1)});
+  var navEl=$('#nav');
+  function mark(id){links.forEach(function(a){var on=a.getAttribute('href')==='#'+id;a.classList.toggle('on',on);if(on&&navEl){var r=a.getBoundingClientRect(), n=navEl.getBoundingClientRect();navEl.scrollLeft+=(r.left-n.left)-(n.width-r.width)/2}})}
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)mark(e.target.id)})},{rootMargin:'-25% 0px -65% 0px'});
+    ids.forEach(function(id){var el=document.getElementById(id);if(el)io.observe(el)});
+  }
+  var prog=$('#prog');
+  function onScroll(){
+    var h=document.documentElement.scrollHeight-window.innerHeight;
+    prog.style.transform='scaleX('+(h>0?Math.min(1,window.scrollY/h):0)+')';
+  }
+  var tick=false;window.addEventListener('scroll',function(){if(!tick){tick=true;requestAnimationFrame(function(){tick=false;onScroll()})}},{passive:true});onScroll();
+
+  /* confete */
+  var cv=$('#confetti'), cx=cv.getContext('2d'), parts=[], running=false;
+  function frame(){
+    cx.clearRect(0,0,cv.width,cv.height);
+    parts.forEach(function(p){
+      p.vy+=p.g;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;p.life++;
+      cx.save();cx.translate(p.x,p.y);cx.rotate(p.r);cx.fillStyle=p.c;cx.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);cx.restore();
+    });
+    parts=parts.filter(function(p){return p.y<cv.height+20&&p.life<220});
+    if(parts.length){requestAnimationFrame(frame)}else{running=false;cx.clearRect(0,0,cv.width,cv.height);cv.style.display='none'}
+  }
+  function confetti(){
+    if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    cv.style.display='block';cv.width=window.innerWidth;cv.height=window.innerHeight;
+    var cols=['#f0a878','#b8481a','#6a2b7d','#d9aee8','#ffffff','#46204f'];
+    for(var i=0;i<150;i++){
+      parts.push({x:cv.width/2+(Math.random()-.5)*240,y:cv.height*0.65,vx:(Math.random()-.5)*13,vy:-Math.random()*15-4,g:.36,
+        s:Math.random()*7+5,c:cols[Math.floor(Math.random()*cols.length)],r:Math.random()*6,vr:(Math.random()-.5)*.4,life:0});
+    }
+    if(!running){running=true;requestAnimationFrame(frame)}
+  }
+
+  /* nós para desatar */
+  var knots=$$('.knot'), kcnt=$('#kcnt'), kwin=$('#kwin');
+  function updateKnots(){
+    var n=knots.filter(function(k){return k.getAttribute('aria-pressed')==='true'}).length;
+    kcnt.textContent=n===0?'0 de 4 nós desatados. Toque em cada obstáculo.':n+' de 4 nós desatados.';
+    var all=n===knots.length;
+    var was=!kwin.hidden;
+    kwin.hidden=!all;
+    if(all&&!was) confetti();
+  }
+  knots.forEach(function(k){
+    k.addEventListener('click',function(){
+      var on=k.getAttribute('aria-pressed')==='true';
+      k.setAttribute('aria-pressed',on?'false':'true');
+      k.querySelector('.a').textContent=on?'Toque para desatar':k.dataset.caminho;
+      updateKnots();
+    });
+  });
+
+  /* mito ou verdade */
+  var Q=[
+    {s:'A violência contra a mulher é apenas agressão física.',v:false,e:'A Lei Maria da Penha reconhece cinco formas: física, psicológica, sexual, patrimonial e moral (BRASIL, 2006).'},
+    {s:'Controlar o dinheiro, reter documentos ou destruir bens da mulher também é violência.',v:true,e:'É violência patrimonial, prevista na Lei nº 11.340/2006 (BRASIL, 2006).'},
+    {s:'Ligar para o 180 custa dinheiro.',v:false,e:'A Central de Atendimento à Mulher – Ligue 180 é gratuita e sigilosa.'},
+    {s:'Humilhar, ameaçar e isolar a mulher de amigos e familiares pode ser violência psicológica.',v:true,e:'Condutas assim causam dano emocional e controlam a vida da mulher (BRASIL, 2006).'},
+    {s:'A Lei Maria da Penha só vale para mulheres casadas.',v:false,e:'A lei alcança o âmbito doméstico e familiar e as relações íntimas de afeto, mesmo sem morar junto (BRASIL, 2006).'}
+  ];
+  var quiz=$('#quiz'), qi=0, score=0, marks=[];
+  function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e}
+  function dots(){
+    var d=el('div','qdots');d.setAttribute('aria-hidden','true');
+    for(var i=0;i<Q.length;i++){var s=el('i',marks[i]||(i===qi?'cur':''));d.appendChild(s)}
+    return d;
+  }
+  function renderQ(){
+    quiz.innerHTML='';
+    var meta=el('div','qmeta');
+    meta.appendChild(el('span','','Pergunta '+(qi+1)+' de '+Q.length));
+    meta.appendChild(dots());
+    quiz.appendChild(meta);
+    quiz.appendChild(el('p','qs',Q[qi].s));
+    var qa=el('div','qa');
+    var bM=el('button','','Mito'), bV=el('button','','Verdade');
+    bM.type='button';bV.type='button';
+    qa.appendChild(bM);qa.appendChild(bV);quiz.appendChild(qa);
+    var fb=el('div','qfb');fb.hidden=true;fb.setAttribute('aria-live','polite');quiz.appendChild(fb);
+    var nx=el('button','qbtn',qi===Q.length-1?'Ver resultado':'Próxima');nx.type='button';nx.hidden=true;quiz.appendChild(nx);
+    function answer(ans){
+      var ok=ans===Q[qi].v;
+      bM.disabled=bV.disabled=true;
+      var chosen=ans?bV:bM, truth=Q[qi].v?bV:bM;
+      truth.classList.add('right');
+      if(!ok) chosen.classList.add('wrong');
+      if(ok) score++;
+      marks[qi]=ok?'ok':'no';
+      fb.innerHTML='';
+      fb.appendChild(el('b','',ok?'Acertou!':'Não foi dessa vez.'));
+      fb.appendChild(el('span','',(Q[qi].v?'Verdade. ':'Mito. ')+Q[qi].e));
+      fb.hidden=false;nx.hidden=false;nx.focus();
+    }
+    bM.addEventListener('click',function(){answer(false)});
+    bV.addEventListener('click',function(){answer(true)});
+    nx.addEventListener('click',function(){qi++;if(qi<Q.length)renderQ();else renderEnd()});
+  }
+  function renderEnd(){
+    quiz.innerHTML='';
+    var meta=el('div','qmeta');meta.appendChild(el('span','','Resultado'));qi=-1;meta.appendChild(dots());quiz.appendChild(meta);
+    quiz.appendChild(el('div','score',score+' de '+Q.length));
+    var msg=score===Q.length?'Placar perfeito! Você já desatou todos os nós.':score>=3?'Muito bem! Falta pouco para dominar o assunto.':'Bom começo. Releia as seções do banner e tente de novo.';
+    quiz.appendChild(el('p','qs',msg));
+    quiz.appendChild(el('p','','Informação é o primeiro passo para proteger direitos. Em caso de violência, o Ligue 180 atende gratuitamente.'));
+    var again=el('button','qbtn','Jogar de novo');again.type='button';
+    again.addEventListener('click',function(){qi=0;score=0;marks=[];renderQ()});
+    quiz.appendChild(again);
+    if(score>=4) confetti();
+  }
+  renderQ();
+
+  /* QR code de acesso */
+  var FIXED_URL='https://claude.ai/artifact/DrNCgchjFQHq51EgLGtyy4';
+  var PAGE_URL=(location.protocol==='https:'&&!/claude|anthropic/i.test(location.hostname))?location.href.split('#')[0]:FIXED_URL;
+  function makeQR(box,size){
+    box.innerHTML='';
+    try{
+      if(typeof QRCode==='undefined') throw new Error('sem biblioteca');
+      new QRCode(box,{text:PAGE_URL,width:size,height:size,colorDark:'#1b1020',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});
+    }catch(e){
+      box.textContent='QR indisponível';
+    }
+  }
+  var modal=$('#qrModal');
+  function openQR(){$('#qrUrl').textContent=PAGE_URL;makeQR($('#qrBig'),360);modal.hidden=false;$('#qrClose').focus()}
+  function closeQR(){modal.hidden=true;$('#qrBtn').focus()}
+  $('#qrBtn').addEventListener('click',openQR);
+  $('#qrCard').addEventListener('click',openQR);
+  $('#qrClose').addEventListener('click',closeQR);
+  $('#qrCopy').addEventListener('click',function(){copyText(PAGE_URL,'Link copiado')});
+  modal.addEventListener('click',function(e){if(e.target===modal)closeQR()});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!modal.hidden)closeQR()});
+  makeQR($('#qrSmall'),256);
+})();
+</script>
+
+</body></html>
